@@ -1,0 +1,102 @@
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
+using MongoDBDemo.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace MongoDBDemo.Controllers
+{
+    public class FootballTeamController : Controller
+    {
+        private MongoDatabase database;
+        // GET: FootballTeam
+        public ActionResult Index()
+        {
+            return View("Index");
+        }
+        public ActionResult Create()
+        {
+            return View("Create");
+        }
+        public ActionResult UpdatePlayer()
+        {
+            return View("Update");
+        }
+        public JsonResult GetAll()
+        {
+            var connectionstring = "mongodb://localhost";
+            var client = new MongoClient(connectionstring);
+            var server = client.GetServer();
+            database = server.GetDatabase("Football");
+            var collections = database.GetCollection<Footballers>("Footballers");
+            IList<Footballers> footballers = new List<Footballers>();
+            var getFootballers = collections.FindAs(typeof(Footballers), Query.NE("Name", "null"));
+            foreach (Footballers footballer in getFootballers)
+            {
+                footballers.Add(footballer);
+            }
+            return Json(footballers, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public ActionResult InsertOne(string football)
+        {
+            var connectionstring = "mongodb://localhost";
+            var client = new MongoClient(connectionstring);
+            var server = client.GetServer();
+            database = server.GetDatabase("Football");
+            var collections = database.GetCollection<Footballers>("Footballers");
+            Footballers ftb = new Footballers();
+            ftb.Name = football;
+            IList<Footballers> footballers = new List<Footballers>();
+            var getFootballers = collections.FindAs(typeof(Footballers), Query.NE("Name", "null"));
+            foreach (Footballers footballer in getFootballers)
+            {
+                footballers.Add(footballer);
+            }
+            return Json(footballers, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public ActionResult UpdateOne(string toUpdate,string UpdatedName)
+        {
+            var connectionstring = "mongodb://localhost";
+            var client = new MongoClient(connectionstring);
+            var server = client.GetServer();
+            database = server.GetDatabase("Football");
+            var collections = database.GetCollection<Footballers>("Footballers");
+            Footballers ftb = new Footballers();
+            ftb.Name = UpdatedName;
+            //To update a record in Mongodb collection
+            var result2 = collections.FindOne(Query.EQ("Name", toUpdate));
+            result2.Name = UpdatedName;
+            var res = collections.Update(Query.EQ("Name", toUpdate), Update.Replace(result2), UpdateFlags.None);
+            IList<Footballers> footballers = new List<Footballers>();
+            var getFootballers = collections.FindAs(typeof(Footballers), Query.NE("Name", "null"));
+            foreach (Footballers footballer in getFootballers)
+            {
+                footballers.Add(footballer);
+            }
+            return Json(footballers, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public ActionResult DeleteOne(string toDelete)
+        {
+            var connectionstring = "mongodb://localhost";
+            var client = new MongoClient(connectionstring);
+            var server = client.GetServer();
+            database = server.GetDatabase("Football");
+            var collections = database.GetCollection<Footballers>("Footballers");
+            //To delete a particualr record from the collection
+            var resultDelete = collections.Remove(Query.EQ("Name", toDelete), RemoveFlags.Single);
+            IList<Footballers> footballers = new List<Footballers>();
+            var getFootballers = collections.FindAs(typeof(Footballers), Query.NE("Name", "null"));
+            foreach (Footballers footballer in getFootballers)
+            {
+                footballers.Add(footballer);
+            }         
+            return Json(footballers, JsonRequestBehavior.AllowGet);
+        }
+    }
+}

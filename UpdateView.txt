@@ -1,0 +1,71 @@
+
+@{
+    ViewBag.Title = "Update";
+}
+
+<h2>Update</h2>
+
+<div>
+    <select id="Players"></select>
+    <input type="text" id="txtUpdatedName" />
+    <input type="button" value="Update" onclick="updatePlayer()" />
+    <input type="button" value="Delete" onclick="deletePlayer()" />
+</div>
+@Html.ActionLink("Back to List", "Index")
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        fillDropdown();
+    });
+
+    function fillDropdown() {
+        $.ajax({
+            type: 'GET',
+            contentType: 'application/json; charset=utf-8',
+            url: '/FootballTeam/GetAll',
+            success: function (data) {
+                var newHtml = "";
+                $.each(data, function (index, value) {
+                    newHtml += "<option value='" + (index + 1) + "'>" + value.Name + "</option>";
+                });
+                $('#Players').append(newHtml);
+            },
+            error: function (data) {
+                alert('Error in getting result');
+            }
+        });
+    }
+    function updatePlayer() {
+        name = $('#txtUpdatedName').val();
+        toUpdate = $('#Players option:selected').text();
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            url: '/FootballTeam/UpdateOne',
+            data: JSON.stringify({ toUpdate: toUpdate,UpdatedName:name }),
+            dataType: "json",
+            success: function (datao) {
+                alert('Data updated successfully!');
+            },
+            error: function (datao) {
+                alert('Error in updating record ' + datao.error);
+            }
+        });
+    }
+    function deletePlayer() {
+        toDelete = $('#Players option:selected').text();
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            url: '/FootballTeam/DeleteOne',
+            data: JSON.stringify({ toDelete: toDelete }),
+            dataType: "json",
+            success: function (datao) {
+                alert('Data deleted successfully!');
+            },
+            error: function (datao) {
+                alert('Error in deleting record ' + datao.error);
+            }
+        });
+    }
+</script>

@@ -1,0 +1,80 @@
+@model MongoDBDemo.Models.Footballers
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<div>
+    <h4>Footballers</h4>
+    <hr />
+    @*<dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+    </dl>*@
+</div>
+
+<div>
+    <table id="fList">
+
+        <tr>
+            <th>Number </th>
+
+            <th>Name</th>
+        </tr>
+    </table>
+</div>
+<p>
+    @Html.ActionLink("Back to List", "Index") |
+    @Html.ActionLink("Create", "Create") |
+    @Html.ActionLink("Update", "UpdatePlayer") 
+</p>
+
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            GetAll();
+        });
+
+        function GetAll() {
+            $.ajax({
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8',
+                url: '/FootballTeam/GetAll',
+                success: function (data) {
+                    var newHtml = "";
+                    $.each(data, function (index, value) {
+                        newHtml += "<tr><td>" + (index + 1) + "</td><td>" + value.Name + "</td></tr>";
+                    });
+                    $('#fList').append(newHtml);
+                },
+                error: function (data) {
+                    alert('Error in getting result');
+                }
+            });
+        }
+
+        function insertOneRecord() {
+            name = $('#txtName').val();
+            $.ajax({
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                url: '/Home/InsertOne',
+                data: JSON.stringify({ football: name }),
+                dataType: "json",
+                success: function (datao) {
+                    GetAll();
+                },
+                error: function (datao) {
+                    alert('Error in inserting record ' + datao.error);
+                }
+            });
+        }
+    </script>
